@@ -1,140 +1,144 @@
-from dessert import Candy, Cookie, IceCream, Sundae, Order
+from abc import ABC, abstractmethod
 
-class DessertShop:
-    @staticmethod
-    def user_prompt_candy():
-        name = input("Enter the type of candy: ").strip()
-        while True:
-            try:
-                weight = float(input("Enter the weight (in lbs): "))
-                if weight < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive number for weight.")
-        while True:
-            try:
-                price_per_pound = float(input("Enter the price per pound: "))
-                if price_per_pound < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive number for price.")
-        return Candy(name, weight, price_per_pound)
+from receipt import make_receipt
 
-    @staticmethod
-    def user_prompt_cookie():
-        name = input("Enter the type of cookie: ").strip()
-        while True:
-            try:
-                quantity = int(input("Enter the quantity purchased: "))
-                if quantity < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive integer for quantity.")
-        while True:
-            try:
-                price_per_dozen = float(input("Enter the price per dozen: "))
-                if price_per_dozen < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive number for price.")
-        return Cookie(name, quantity, price_per_dozen)
+class DessertItem(ABC):
+    def __init__(self, name):
+        self.name = name
+        self.tax_percent = 7.25
 
-    @staticmethod
-    def user_prompt_icecream():
-        name = input("Enter the type of ice cream: ").strip()
-        while True:
-            try:
-                scoops = int(input("Enter the number of scoops: "))
-                if scoops < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive integer for scoops.")
-        while True:
-            try:
-                price_per_scoop = float(input("Enter the price per scoop: "))
-                if price_per_scoop < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive number for price.")
-        return IceCream(name, scoops, price_per_scoop)
+    def get_name(self):
+        return self.name
+    
+    @abstractmethod
+    def calc_cost(self):
+        pass
 
-    @staticmethod
-    def user_prompt_sundae():
-        name = input("Enter the type of ice cream: ").strip()
-        while True:
-            try:
-                scoops = int(input("Enter the number of scoops: "))
-                if scoops < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive integer for scoops.")
-        while True:
-            try:
-                price_per_scoop = float(input("Enter the price per scoop: "))
-                if price_per_scoop < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive number for price.")
-        topping = input("Enter the topping: ").strip()
-        while True:
-            try:
-                topping_price = float(input("Enter the price for the topping: "))
-                if topping_price < 0:
-                    raise ValueError
-                break
-            except ValueError:
-                print("Invalid input. Please enter a positive number for topping price.")
-        return Sundae(name, scoops, price_per_scoop, topping, topping_price)
+    def calculate_tax(self) -> float:
+        return self.calc_cost() * (self.tax_percent / 100)
+        
+    
+    
+class Candy(DessertItem):
+    def __init__(self, name,candy_weight, price_per_pound):
+        super().__init__(name)
+        self.candy_weight = candy_weight
+        self.price_per_pound = price_per_pound
+    
+    def get_cost(self):
+        return self.price_per_pound
+    
+    def get_weight(self):
+        return self.candy_weight
+    
+    def calc_cost(self):
+        return self.candy_weight * self.price_per_pound
+
+class Cookie(DessertItem):
+    def __init__(self, name, quantity, price_per_dozen):
+        super().__init__(name)
+        self.quantity = quantity
+        self.price_per_dozen = price_per_dozen
+
+    def get_cost(self):
+        return self.price_per_dozen
+    
+    def get_amount(self):
+        return self.quantity
+    
+    def calc_cost(self):
+        return (self.quantity / 12) * (self.price_per_dozen)
+    
+    
+class IceCream(DessertItem):
+    def __init__(self, name, scoop_count, price_per_scoop):
+        super().__init__(name)
+        self.scoop_count = scoop_count
+        self.price_per_scoop = price_per_scoop
+    
+    def get_scoop(self):
+        return self.scoop_count
+    
+    def get_cost(self):
+        return self.price_per_scoop
+    
+    def calc_cost(self):
+        return self.price_per_scoop * self.scoop_count
+
+class Sundae(IceCream):
+    def __init__(self, name, scoop_count, price_per_scoop, topping_name, topping_price):
+        super().__init__(name, scoop_count, price_per_scoop)
+        self.topping_name = topping_name
+        self.topping_price = topping_price
+
+    def get_topping(self):
+        return self.topping_name
+    
+    def get_topping_price(self):
+        return self.topping_price
+    
+    def calc_cost(self):
+        return super().calc_cost() + self.topping_price
+    
+
+class Order:
+    def __init__(self):
+        self.order = []
+
+    def add(self, item):
+        self.item = item
+        
+        self.order.append(self.item)
+        
+
+    def __len__(self):
+        size = len(self.order)
+        return size
+    
+    def order_cost(self) -> float:
+        return sum(item.calc_cost() for item in self.order)
+    
+    def order_tax(self) -> float:
+        return sum(item.calculate_tax() for item in self.order)
+    
+    def get_order_data(self) -> float:
+        data = []
+        for item in self.order:
+            item_cost = item.calc_cost()
+            tax_amount = item.calculate_tax()
+            data.append([item.get_name(), f"${item_cost: .2f}", f"${tax_amount: .2f}"])
+        return data
+    
 
 
 def main():
-    order = Order()
-    while True:
-        print("1: Candy")
-        print("2: Cookie")
-        print("3: Ice Cream")
-        print("4: Sundae")
-        choice = input("What would you like to add to the order? (1-4, Enter for done): ").strip()
-        if not choice:
-            break
-        if choice == '1':
-            order.add(DessertShop.user_prompt_candy())
-        elif choice == '2':
-            order.add(DessertShop.user_prompt_cookie())
-        elif choice == '3':
-            order.add(DessertShop.user_prompt_icecream())
-        elif choice == '4':
-            order.add(DessertShop.user_prompt_sundae())
-        else:
-            print("Invalid choice. Please select 1, 2, 3, 4, or press Enter to finish.")
+    Order_1 = Order()
+    
+    Order_1.add(Candy("Candy Corn", 1.5, .25))
+    Order_1.add(Candy("Gummy Bears", .25, .35))
+    Order_1.add(Cookie("Chocolate Chip", 6, 3.99))
+    Order_1.add(IceCream("Pistachio", 2, .79))
+    Order_1.add(Sundae("Vanilla", 3, .69, "Hot Fudge", 1.29))
+    Order_1.add(Cookie("Oatmeal Raisin", 2, 3.45))
 
-    data = [["Name", "Cost", "Tax"]]
-    subtotal = 0.0
-    total_tax = 0.0
+    for item in Order_1.order:
+        print(f"{item.get_name()} - ${item.calc_cost():.2f}")
+        
 
-    for item in order.order:
-        cost = item.calculate_cost()
-        tax = item.calculate_tax()
-        subtotal += cost
-        total_tax += tax
-        data.append([item.name, f"${cost:.2f}", f"${tax:.2f}"])
+    print(f"Total number of items in order: {len(Order_1)}")
+    
+    print(f"Total cost of the order: ${Order_1.order_cost():.2f}")
+    print(f"Total tax applied: ${Order_1.order_tax():.2f}")
 
-    total_cost = subtotal + total_tax
-    data.append(['Order Subtotals', f"${subtotal:.2f}", f"${total_tax:.2f}"])
-    data.append(['Order Total', f"${total_cost:.2f}", ''])
-    data.append(['Total items in the order', str(len(order)), ''])
+    order_data = Order_1.get_order_data()
+    subtotal = Order_1.order_cost()
+    total_tax = Order_1.order_tax()
 
-    import receipt
-    receipt.make_receipt(data, 'receipt.pdf')
+    order_data.append(["Subtotal" , f"${subtotal: .2f}", f"${total_tax: .2f}"])
+    order_data.append(["Total", "", f"${subtotal + total_tax: .2f}" ])
+    order_data.append(["Total Items","", str(len(Order_1))])
 
+    make_receipt(order_data, "receipt.pdf")
 
 if __name__ == "__main__":
     main()
