@@ -18,6 +18,8 @@ class Order():
         for item in self.order:
             tax += item.calculate_cost() * (item.tax_percent/100)
         return tax
+    def __str__(self):
+        return self.order
 
 class DessertShop():
     def user_prompt_candy(self):
@@ -134,8 +136,9 @@ class DessertShop():
                 continue
             if isinstance(scoop_price, float):
                 break
+
         while True:
-            topping_name = input("Price per scoop: ")
+            topping_name = input("Topping name: ")
             if isinstance(topping_name, str):
                 break
             else:
@@ -143,7 +146,7 @@ class DessertShop():
                 continue
         while True:
             try:
-                topping_price = float(input("Price per scoop: "))
+                topping_price = float(input("Topping price: "))
             except ValueError:
                 print("That's not a float. Type in a float.")
                 continue
@@ -216,6 +219,6 @@ def main(Order):
     data.append(["Total items in the order", "", str(order.__len__())])
     import receipt
     receipt.make_receipt(data, "receipt.pdf")
-    print(data)
+    print(order)
 
 main(Order)
