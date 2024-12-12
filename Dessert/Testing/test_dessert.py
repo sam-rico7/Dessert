@@ -1,9 +1,4 @@
-from dessert import *
-
-def test_tax():
-    test_1 = Candy("Pirulin")
-    assert test_1.tax_percent == 7.25
-
+from dessert import DessertItem, Candy, Cookie, IceCream, Sundae
     
 def test_tax_percent():
     candy1 = Candy("Chocolate", 3.5, 1.5)

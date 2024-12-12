@@ -1,4 +1,4 @@
-from dessert import Sundae
+from dessert import DessertItem, Candy, Cookie, IceCream, Sundae
 
 def test_sundae_init():
     sundae = Sundae("Rocky Road", 2, 3.11, "Cherry", 1.00)
@@ -12,3 +12,7 @@ def test_sundae_init():
     assert topping == "Cherry"
     topping_price = sundae.get_topping_price()
     assert topping_price == 1.00
+
+def test_packaging():
+    sundae = Sundae("Rocky Road", 2, 3.11, "Cherry", 1.00)
+    assert sundae.packaging == "Boat4"

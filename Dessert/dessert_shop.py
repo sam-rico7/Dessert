@@ -19,7 +19,11 @@ class Order():
             tax += item.calculate_cost() * (item.tax_percent/100)
         return tax
     def __str__(self):
-        return self.order
+        order_summary = []
+        for item in self.order:
+            order_summary.append(str(item))
+        return '; '.join(order_summary)
+
 
 class DessertShop():
     def user_prompt_candy(self):
